@@ -1,0 +1,67 @@
+<div id="metricsdiff-main">
+    <div class="row">
+        <div class="col col-12">
+            <div class="box-component">
+                <div id="start_date" class="datepicker">
+                    <div class="head">
+                        <div class="prev"><i class="icon-chevron-left"></i></div>
+                        <div class="title"></div>
+                        <div class="next"><i class="icon-chevron-right"></i></div>
+                    </div>
+                    <table class="body">
+                        <tr>
+                            <th>SU</th><th>MO</th><th>TU</th><th>WE</th><th>TH</th><th>FR</th><th>SA</th>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="box-component">
+                <div id="end_date" class="datepicker">
+                    <div class="head">
+                        <div class="prev"><i class="icon-chevron-left"></i></div>
+                        <div class="title"></div>
+                        <div class="next"><i class="icon-chevron-right"></i></div>
+                    </div>
+                    <table class="body">
+                        <tr>
+                            <th>SU</th><th>MO</th><th>TU</th><th>WE</th><th>TH</th><th>FR</th><th>SA</th>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="box-component">
+                <div id="oid_config" style="width: 300px;"></div>
+            </div>
+
+            <div class="box-component">
+                <div id="metric_box"></div>
+            </div>
+
+            <div class="box-component">
+                <a href="javascript:renderMetricsChart()" class="btn small">Run</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="hr"></div>
+    </div>
+
+    <div class="row" style="margin-top: 15px;">
+        <div class="col col-12">
+            <div id="metric_chart"></div>
+        </div>
+    </div>
+</div>
+
+<input type="hidden" name="theme" value="$theme" />
+
+<script id="tpl_dates" type="text/template">
+    <tr>
+        <! for(var i = 0; i < dates.length; i++) { !>
+        <td><!= dates[i] !></td>
+        <! } !>
+    </tr>
+</script>

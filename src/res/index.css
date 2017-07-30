@@ -1,0 +1,24 @@
+#metricsdiff-main {
+}
+
+#metricsdiff-main .box-component {
+    float: left;
+    margin-top: 10px;
+    margin-left: 10px;
+}
+
+#metricsdiff-main .row {
+    margin-bottom: 10px;
+}
+
+#metricsdiff-main .hr {
+    margin-top: 15px;
+}
+
+#metricsdiff-main #metric_tables {
+    margin-top: 30px;
+}
+
+#metricsdiff-main #metric_tab {
+    padding-top: 15px;
+}
