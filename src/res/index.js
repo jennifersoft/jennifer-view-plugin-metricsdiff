@@ -94,11 +94,10 @@ jui.ready([ "ui", "selectbox", "util.base", "chart.builder", "util.color" ], fun
             type : "tooltip",
             orient : "left",
             format : function(data, key) {
-                if(data.value == 0) {
-                    return "0/0";
+                return {
+                    key: data.xLabel,
+                    value: (data.value == 0) ? "0/0" : data.preValue.toFixed(2) + "/" + data.postValue.toFixed(2)
                 }
-
-                return data.preValue.toFixed(2) + "/" + data.postValue.toFixed(2);
             }
         },
         style : {
