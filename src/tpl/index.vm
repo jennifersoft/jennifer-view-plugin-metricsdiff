@@ -40,6 +40,15 @@
             </div>
 
             <div class="box-component">
+                <div id="metric_combo" class="combo">
+                    <a class="btn small">Select...</a>
+                    <a class="btn small toggle"><i class="icon-arrow2"></i></a>
+                    <ul>
+                        <li value="15">15 minutes</li>
+                        <li value="30">30 minutes</li>
+                        <li value="60">1 hours</li>
+                    </ul>
+                </div>
                 <a href="javascript:renderMetricsChart()" class="btn small">Run</a>
             </div>
         </div>

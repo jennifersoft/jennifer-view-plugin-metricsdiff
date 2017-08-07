@@ -1,6 +1,14 @@
-var targetInstance = null, startDate = null, endDate = null, metricsBox = null, metricsChart = null;
+var targetInstance = null, startDate = null, endDate = null,
+    metricsBox = null, metricsChart = null, metricsCombo = null, colorMap = null;
 
 jui.ready([ "ui", "selectbox", "util.base", "chart.builder", "util.color" ], function(ui, select, _, builder, color) {
+    colorMap = color.map["pink"](20);
+
+    metricsCombo = ui.combo("#metric_combo", {
+        index: 2,
+        width: 120
+    });
+
     endDate = ui.timezonepicker("#end_date", {
         event: {
             select: function(date) {
@@ -36,8 +44,8 @@ jui.ready([ "ui", "selectbox", "util.base", "chart.builder", "util.color" ], fun
         theme : $("input[name=theme]").val(),
         padding : {
             left : 200,
-            top : 10,
-            bottom : 25,
+            top : 100,
+            bottom : 10,
             right : 10
         },
         height : 2300,
@@ -47,7 +55,12 @@ jui.ready([ "ui", "selectbox", "util.base", "chart.builder", "util.color" ], fun
                     type : "block",
                     domain : [],
                     line : "solid",
-                    key : "xIndex"
+                    key : "xIndex",
+                    orient : "top",
+                    textRotate : function(elem) {
+                        elem.attr({ "text-anchor": "start" });
+                        return -90;
+                    }
                 },
                 y : {
                     type : "block",
@@ -67,21 +80,19 @@ jui.ready([ "ui", "selectbox", "util.base", "chart.builder", "util.color" ], fun
                     return "transparent";
                 }
 
-                var value = (d.value > 1) ? 1 : d.value,
-                    h = (1.0 - value) * 240;
+                var count = colorMap.length - 1,
+                    value = sigmoid(Math.abs(d.value)),
+                    index = Math.floor(value * count);
 
-                return "hsl(" + h + ", 100%, 50%)";
+                return colorMap[count - index];
             },
             format : function(d) {
-                if(d.value > 0) {
-                    return d.value.toFixed(2);
-                }
-
-                return "";
+                return Math.round(d.value);
             }
         },
         widget : {
             type : "tooltip",
+            orient : "left",
             format : function(data, key) {
                 if(data.value == 0) {
                     return "0/0";
@@ -97,8 +108,8 @@ jui.ready([ "ui", "selectbox", "util.base", "chart.builder", "util.color" ], fun
             heatmapBorderColor: "#000",
             heatmapBorderWidth: 0.5,
             heatmapBorderOpacity: 0.1,
-            heatmapFontSize: 11,
-            heatmapFontColor: "#000",
+            heatmapFontSize: 10,
+            heatmapFontColor: "#fff",
             gridTickBorderSize: 0,
             gridXAxisBorderWidth: 1,
             gridYAxisBorderWidth: 1
@@ -134,6 +145,10 @@ jui.ready([ "ui", "selectbox", "util.base", "chart.builder", "util.color" ], fun
     }, 1000);
 });
 
+function sigmoid(t) {
+    return 1/(1+Math.pow(Math.E, -t));
+}
+
 function findMetricsGroup(group) {
     $.getJSON("/metrics/avg_max/" + group, "format=json", function(data) {
         var metricsList = [];
@@ -160,8 +175,7 @@ function getParameters(time, dates, metrics) {
     var sid = parseInt($target.data("sid")),
         oid = parseInt($target.attr("value")),
         stime = time,
-        etime = time + (1000 * 60 * 60 * 24),
-        interval = 60;
+        etime = time + (1000 * 60 * 60 * 24);
 
     var funcs = [],
         otypes = [],
@@ -177,7 +191,7 @@ function getParameters(time, dates, metrics) {
         return null;
     }
 
-    return 'sid=' + sid + '&startTime=' + stime + '&endTime=' + etime + '&intervalInMinute=' + interval +
+    return 'sid=' + sid + '&startTime=' + stime + '&endTime=' + etime + '&intervalInMinute=' + metricsCombo.getValue() +
         '&otypeList=' + otypes + '&oidsList=' + oids + '&metricsList=' + metrics + '&functionsList=' + funcs +
         '&startIntervalIndex=' + 0 + '&intervalCountLimit=' + dates.length + "&format=json";
 
@@ -206,12 +220,7 @@ function updateMetricsData(xDomain, yDomain, yValues, callback) {
                 for(var y = 0; y < yDomain.length; y++) {
                     for(var x = 0; x < xDomain.length; x++) {
                         var preValue = preJson[x][y + 1],
-                            postValue = postJson[x][y + 1],
-                            value = preValue || postValue;
-
-                        if(value != 0 && preValue != 0 && postValue != 0) {
-                            value = preValue / postValue;
-                        }
+                            postValue = postJson[x][y + 1];
 
                         data.push({
                             xIndex: x,
@@ -220,7 +229,7 @@ function updateMetricsData(xDomain, yDomain, yValues, callback) {
                             yLabel: yDomain[y],
                             preValue: preValue,
                             postValue: postValue,
-                            value: value
+                            value: preValue - postValue
                         });
                     }
                 }
@@ -237,12 +246,16 @@ function renderMetricsChart(isInit) {
         yValues = [],
         metricsList = metricsBox.getData();
 
-    var xLen = 24,
+    var xLen = (60 / metricsCombo.getValue()) * 24,
         yLen = metricsList.length,
-        height = metricsChart.axis(0).x.rangeBand() * yLen;
+        height = metricsChart.axis(0).x.rangeBand() * yLen,
+        stime = startDate.getTime();
 
     for (var i = 0; i < xLen; i++) {
-        xDomain.push(i + 1);
+        var time = stime + (1000 * 60 * metricsCombo.getValue() * i),
+            moment = getServerMoment(time);
+
+        xDomain.push(moment.format("LT")); // MM:ss
     }
 
     for (var i = 0; i < yLen; i++) {
@@ -250,8 +263,8 @@ function renderMetricsChart(isInit) {
         yValues.push(metricsList[i].value);
     }
 
-    metricsChart.axis(0).set("x", {domain: xDomain});
-    metricsChart.axis(0).set("y", {domain: yDomain});
+    metricsChart.axis(0).set("x", { domain: xDomain });
+    metricsChart.axis(0).set("y", { domain: yDomain });
     metricsChart.setSize("100%", height);
 
     if (isInit) {
