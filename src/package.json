@@ -1,6 +1,6 @@
 {
-  "title": "Metrics diff",
-  "description": "In simple linear regression, we predict scores on one variable from the scores on a second variable.",
+  "title": "Metrics-diff Analysis",
+  "description": "It is an analysis screen that compares the variation of all the matrices.",
   "version": "5.2.3",
   "mainUrl": "/plugin/metricsdiff",
   "mainTpl": "tpl/index.vm",

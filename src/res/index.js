@@ -302,3 +302,16 @@ function renderMetricsChart(isInit) {
         });
     }
 }
+
+function captureMetricsChart() {
+    var target = targetInstance.getName(),
+        sdate = startDate.getDate().format("YYYYMMDD"),
+        edate = endDate.getDate().format("YYYYMMDD");
+
+    var name = (sdate == edate) ? sdate : sdate + "-" + edate;
+    if(target.length > 0) {
+        name = target[0] + "_" + name;
+    }
+
+    metricsChart.svg.downloadImage(name + ".png");
+}

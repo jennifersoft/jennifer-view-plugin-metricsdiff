@@ -50,6 +50,7 @@
                     </ul>
                 </div>
                 <a href="javascript:renderMetricsChart()" class="btn small">Run</a>
+                <a href="javascript:captureMetricsChart()" class="btn small">Screenshot</a>
             </div>
         </div>
     </div>
