@@ -48,7 +48,7 @@ jui.ready([ "ui", "selectbox", "util.base", "chart.builder", "util.color" ], fun
             bottom : 10,
             right : 10
         },
-        height : 2300,
+        height : 1420,
         axis : [
             {
                 x : {
@@ -274,7 +274,8 @@ function renderMetricsChart(isInit) {
 
     var xLen = (60 / metricsCombo.getValue()) * 24,
         yLen = metricsList.length,
-        height = Math.max(metricsChart.axis(0).x.rangeBand(), metricsChart.axis(0).y.rangeBand()) * yLen,
+        size = metricsChart.axis(0).x.rangeBand() / 2,
+        height = size * yLen,
         stime = startDate.getTime();
 
     for (var i = 0; i < xLen; i++) {

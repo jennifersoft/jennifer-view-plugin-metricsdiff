@@ -40,7 +40,7 @@
             </div>
 
             <div class="box-component">
-                <div id="metric_combo" class="combo">
+                <div id="metric_combo" class="combo" style="display: none;">
                     <a class="btn small">Select...</a>
                     <a class="btn small toggle"><i class="icon-arrow2"></i></a>
                     <ul>
