@@ -87,7 +87,11 @@ jui.ready([ "ui", "selectbox", "util.base", "chart.builder", "util.color" ], fun
                 return colorMap[count - index];
             },
             format : function(d) {
-                return Math.round(d.value);
+                if(metricsChart.axis(0).x.rangeBand() < 50) {
+                    return (d.value < 0) ? "-" : "+";
+                }
+
+                return d.value.toFixed(2) + "%";
             }
         },
         widget : {
@@ -132,7 +136,7 @@ jui.ready([ "ui", "selectbox", "util.base", "chart.builder", "util.color" ], fun
             type: "single",
             domainGroup: true,
             activeMenu: "instance",
-            menu: [ "instance" ],
+            menu: [ "domain", "instance" ],
             tabCallback: function(type) {
                 findMetricsGroup(type);
             }
@@ -149,7 +153,7 @@ function sigmoid(t) {
 }
 
 function findMetricsGroup(group) {
-    $.getJSON("/metrics/avg_max/" + group, "format=json", function(data) {
+    $.getJSON("/metrics/" + group, "format=json", function(data) {
         var metricsList = [];
 
         $.each(data, function(idx, value) {
@@ -168,12 +172,8 @@ function findMetricsGroup(group) {
     });
 }
 
-function getParameters(time, dates, metrics) {
-    var $target = $("#oid_config").find("li.active a");
-
-    var sid = parseInt($target.data("sid")),
-        oid = parseInt($target.attr("value")),
-        stime = time,
+function getParameters(sid, oid, time, dates, metrics) {
+    var stime = time,
         etime = time + (1000 * 60 * 60 * 24);
 
     var funcs = [],
@@ -202,14 +202,28 @@ function updateMetricsData(xDomain, yDomain, yValues, callback) {
         return;
     }
 
-    var oid = parseInt($("#oid_config").find("li.active a").attr("value"));
-    if(oid == -1 || !oid) {
-        alert(i18n.get("M0026"));
+    var sid = -1,
+        oid = -1;
+
+    if(targetInstance.getMenu() == "instance") {
+        var $target = $("#oid_config").find("li.active a");
+
+        sid = parseInt($target.data("sid"));
+        oid = parseInt($target.attr("value"));
+    } else {
+        var $target = $("#oid_config").find("a.active");
+
+        sid = parseInt($target.attr("value"));
+        oid = 0;
+    }
+
+    if(isNaN(sid) || isNaN(oid)) {
+        alert(i18n.get("M0015"));
         return;
     }
 
-    var preParams = getParameters(startDate.getTime(), xDomain, yValues),
-        postParams = getParameters(endDate.getTime(), xDomain, yValues);
+    var preParams = getParameters(sid, oid, startDate.getTime(), xDomain, yValues),
+        postParams = getParameters(sid, oid, endDate.getTime(), xDomain, yValues);
 
     if(preParams != null & postParams != null) {
         $.getJSON('/db/metrics', preParams, function (preJson) {
@@ -221,6 +235,13 @@ function updateMetricsData(xDomain, yDomain, yValues, callback) {
                         var preValue = preJson[x][y + 1],
                             postValue = postJson[x][y + 1];
 
+                        var rate = (postValue - preValue) / preValue;
+                        if(preValue == 0) {
+                            rate = postValue;
+                        } else {
+                            rate *= 100;
+                        }
+
                         data.push({
                             xIndex: x,
                             yIndex: y,
@@ -228,7 +249,7 @@ function updateMetricsData(xDomain, yDomain, yValues, callback) {
                             yLabel: yDomain[y],
                             preValue: preValue,
                             postValue: postValue,
-                            value: preValue - postValue
+                            value: rate
                         });
                     }
                 }
@@ -247,7 +268,7 @@ function renderMetricsChart(isInit) {
 
     var xLen = (60 / metricsCombo.getValue()) * 24,
         yLen = metricsList.length,
-        height = metricsChart.axis(0).x.rangeBand() * yLen,
+        height = Math.max(metricsChart.axis(0).x.rangeBand(), metricsChart.axis(0).y.rangeBand()) * yLen,
         stime = startDate.getTime();
 
     for (var i = 0; i < xLen; i++) {
