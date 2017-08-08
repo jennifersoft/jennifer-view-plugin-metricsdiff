@@ -81,17 +81,23 @@ jui.ready([ "ui", "selectbox", "util.base", "chart.builder", "util.color" ], fun
                 }
 
                 var count = colorMap.length - 1,
-                    value = sigmoid(Math.abs(d.value)),
-                    index = Math.floor(value * count);
+                    value = Math.abs(d.value / 100);
+
+                if(value > 1) value = 1;
+                var index = Math.floor(value * count);
 
                 return colorMap[count - index];
             },
             format : function(d) {
-                if(metricsChart.axis(0).x.rangeBand() < 50) {
-                    return (d.value < 0) ? "-" : "+";
-                }
+                if(d.value == 0) {
+                    return "";
+                } else {
+                    if(metricsChart.axis(0).x.rangeBand() < 40) {
+                        return (d.value < 0) ? "-" : "+";
+                    }
 
-                return d.value.toFixed(2) + "%";
+                    return d.value.toFixed(2) + "%";
+                }
             }
         },
         widget : {
@@ -112,7 +118,7 @@ jui.ready([ "ui", "selectbox", "util.base", "chart.builder", "util.color" ], fun
             heatmapBorderWidth: 0.5,
             heatmapBorderOpacity: 0.1,
             heatmapFontSize: 10,
-            heatmapFontColor: "#fff",
+            heatmapFontColor: "#dcdcdc",
             gridTickBorderSize: 0,
             gridXAxisBorderWidth: 1,
             gridYAxisBorderWidth: 1
