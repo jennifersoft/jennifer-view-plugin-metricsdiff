@@ -16,4 +16,4 @@ Different versions of the server support different plug-in versions.
  
 | Plugin version           | Jennifer server version |
 | ------------- |:-------------:|
-| 1.0.x       | Greater than or equal to version 5.3.0 |
+| 1.0.0       | Greater than or equal to version 5.3.0 |
