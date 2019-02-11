@@ -1,4 +1,4 @@
-jui.redefine("chart.brush.heatmap", [ "util.base" ], function(_) {
+graph.redefine("chart.brush.heatmap", [ "util.base" ], function(_) {
 
     /**
      * @class chart.brush.heatmap

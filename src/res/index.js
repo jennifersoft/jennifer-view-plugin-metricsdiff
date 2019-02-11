@@ -1,7 +1,9 @@
 var targetInstance = null, startDate = null, endDate = null,
     metricsBox = null, metricsChart = null, metricsCombo = null, colorMap = null;
 
-jui.ready([ "ui", "selectbox", "util.base", "chart.builder", "util.color" ], function(ui, select, _, builder, color) {
+jui.ready([ "ui", "selectbox", "util.base", "util.color" ], function(ui, select, _, color) {
+    var builder = graph.include("chart.builder");
+
     colorMap = color.map["pink"](20);
 
     metricsCombo = ui.combo("#metric_combo", {
